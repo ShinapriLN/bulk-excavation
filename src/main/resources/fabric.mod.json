@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "bulk-excavation",
+	"version": "${version}",
+	"name": "bulk-excavation",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Shinapri"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/bulk-excavation/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.shinapri.bulkexcavation.Excavation"
+		],
+        "client": [
+          "com.shinapri.bulkexcavation.client.BulkexcavationClient"
+        ],
+        "modmenu": [
+          "com.shinapri.bulkexcavation.client.ModMenuEntry"
+        ]
+	},
+	"depends": {
+		"fabricloader": ">=0.17.2",
+		"minecraft": ">=1.21",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*",
+        "modmenu": "*"
+	}
+}
