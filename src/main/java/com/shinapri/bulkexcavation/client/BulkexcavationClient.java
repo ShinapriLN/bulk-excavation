@@ -22,7 +22,7 @@ import net.minecraft.util.Formatting;
 import org.lwjgl.glfw.GLFW;
 
 public class BulkexcavationClient implements ClientModInitializer {
-    private static KeyBinding KEY_POS;
+    private static KeyBinding KEY_ACTIVE;
 
     private boolean prevLmb = false;
     private static final long CLICK_COOLDOWN_MS = 120;
@@ -31,7 +31,7 @@ public class BulkexcavationClient implements ClientModInitializer {
 
     @Override public void onInitializeClient() {
 
-        KEY_POS = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        KEY_ACTIVE = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.excavation.pos",
                 GLFW.GLFW_KEY_LEFT_ALT,
                 "key.categories.excavation"
@@ -42,7 +42,7 @@ public class BulkexcavationClient implements ClientModInitializer {
 
             long window = client.getWindow().getHandle();
 
-            boolean altHeld = KEY_POS.isPressed() || InputUtil.isKeyPressed(window, GLFW.GLFW_KEY_LEFT_ALT);
+            boolean altHeld = KEY_ACTIVE.isPressed() || InputUtil.isKeyPressed(window, GLFW.GLFW_KEY_LEFT_ALT);
 
             boolean lmb = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
             boolean risingEdge = lmb && !prevLmb;

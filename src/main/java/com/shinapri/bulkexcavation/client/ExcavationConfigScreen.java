@@ -8,6 +8,9 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class ExcavationConfigScreen {
     private ExcavationConfigScreen() {}
 
@@ -30,7 +33,7 @@ public final class ExcavationConfigScreen {
         );
 
         cat.addEntry(
-                eb.startBooleanToggle(Text.literal("Require suitable tool"), cfg.requireTool)
+                eb.startBooleanToggle(Text.literal("Use existed tools"), cfg.requireTool)
                         .setDefaultValue(ExcavationConfig.DEFAULT_REQUIRE_TOOL)
                         .setSaveConsumer(v -> cfg.requireTool = v)
                         .build()
@@ -47,6 +50,13 @@ public final class ExcavationConfigScreen {
                 eb.startBooleanToggle(Text.literal("Display console log"), cfg.consoleLog)
                         .setDefaultValue(ExcavationConfig.DEFAULT_CONSOLE_LOG)
                         .setSaveConsumer(v -> cfg.consoleLog = v)
+                        .build()
+        );
+
+        cat.addEntry(
+                eb.startStrList(Text.literal("Skip blocks"), cfg.skipBlocks)
+                        .setDefaultValue(ExcavationConfig.DEFAULT_SKIP_BLOCKS)
+                        .setSaveConsumer(v -> cfg.skipBlocks = new ArrayList<>(v))
                         .build()
         );
 

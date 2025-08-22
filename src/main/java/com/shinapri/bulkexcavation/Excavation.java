@@ -6,22 +6,22 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShearsItem;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.registry.tag.BlockTags;
 
+import java.io.Console;
+import java.util.List;
 
 
 public class Excavation implements ModInitializer {
@@ -42,6 +42,7 @@ public class Excavation implements ModInitializer {
                                 boolean mustUseTool = cfg.requireTool;
                                 boolean dropLoot    = cfg.dropLoot;
                                 boolean consoleLog = cfg.consoleLog;
+                                List<String> skipBlocks = cfg.skipBlocks;
 
                                 var a = payload.pos1();
                                 var b = payload.pos2();
@@ -71,20 +72,21 @@ public class Excavation implements ModInitializer {
                                             m.set(x,y,z);
                                             BlockState state = world.getBlockState(m);
                                             if (state.isAir()) continue;
-                                            if (state.getHardness(world, m) < 0.0F) continue;
 
-                                            BlockEntity be = world.getBlockEntity(m);
+                                            Identifier id = Registries.BLOCK.getId(state.getBlock());
+                                            if (skipBlocks.contains(id.toString())) continue;
 
                                             int slot = -1;
                                             ItemStack tool = ItemStack.EMPTY;
 
+                                            // Specify use exist tools in config
                                             if (mustUseTool) {
                                                 slot = findSuitableToolSlot(player, state);
-                                                if (slot < 0) { skippedNoTool++; continue; }
-                                                tool = player.getInventory().getStack(slot);
+                                                if (slot < 0) { skippedNoTool++; continue; }    // Skip the block if no tools required exist
+                                                tool = player.getInventory().getStack(slot);    // Otherwise
+                                                damageToolOne(tool, player);
                                             } else {
                                                 slot = findSuitableToolSlot(player, state);
-                                                if (slot >= 0) tool = player.getInventory().getStack(slot);
                                             }
 
                                             int old = player.getInventory().getSelectedSlot();
@@ -128,16 +130,21 @@ public class Excavation implements ModInitializer {
         int size = inv.size();
         for (int i = 0; i < size; i++) {
             ItemStack stack = inv.getStack(i);
+            // filtered out not tools and empty stack
             if (stack.isEmpty()) continue;
-
             if (!isToolLike(stack)) continue;
 
+            // Check if the block require tools
             if (state.isToolRequired()) {
                 if (stack.isSuitableFor(state)) return i;
                 else continue;
             }
 
+            // The current block needs no tools
+            // Check if the current stack suits for the current block
             if (stack.isSuitableFor(state)) return i;
+
+            // Finally if the current block uses shear
             if (stack.getItem() instanceof ShearsItem &&
                     (state.isIn(BlockTags.LEAVES) || state.isIn(BlockTags.WOOL) || state.isOf(Blocks.COBWEB))){
                 return i;
