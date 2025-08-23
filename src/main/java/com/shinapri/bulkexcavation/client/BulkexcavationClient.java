@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 
@@ -38,7 +39,7 @@ import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 
 public class BulkexcavationClient implements ClientModInitializer {
     private static KeyBinding KEY_ACTIVE;
-
+    private boolean complete = false;
     private boolean prevLmb = false;
     private boolean prevRmb = false;
     private static final long CLICK_COOLDOWN_MS = 120;
@@ -80,6 +81,7 @@ public class BulkexcavationClient implements ClientModInitializer {
             var cfg       = com.shinapri.bulkexcavation.config.ExcavationConfigIO.get();
             boolean enablePreview = cfg.preview;
             int maxVolume = cfg.maxVolume;
+            boolean enableRemote = cfg.remoteExcavation;
 
             long window = client.getWindow().getHandle();
 
@@ -110,8 +112,14 @@ public class BulkexcavationClient implements ClientModInitializer {
                 return;
             }
 
+            MinecraftClient mc = MinecraftClient.getInstance();
+            ClientWorld world = mc.world;
+            if (world == null) return;
+
             BlockPos hit = getLookedBlock(client);
             if (hit == null) return;
+
+            BlockState state   = world.getBlockState(hit);
             /*
             if (client.options != null) {
                 client.options.attackKey.setPressed(false);
@@ -120,12 +128,10 @@ public class BulkexcavationClient implements ClientModInitializer {
                 client.interactionManager.cancelBlockBreaking(); // Yarn 1.21.x
             }*/
 
-            boolean complete = ClientSel.push(hit);
+            if(!state.isAir()){
+                complete = ClientSel.push(hit);
+            }
             if (complete) {
-                MinecraftClient mc = MinecraftClient.getInstance();
-                ClientWorld world = mc.world;
-                if (world == null) return;
-
                 BlockPos a = ClientSel.pos1, b = ClientSel.pos2;
                 if (a == null || b == null) return;
 
@@ -157,15 +163,24 @@ public class BulkexcavationClient implements ClientModInitializer {
                         oldPos = null;
                         return;
                     }
-                    if(java.util.Objects.equals(oldPos, b)){
+                    if(enableRemote && state.isAir()){
                         Pair<BlockPos, BlockPos> s = ClientSel.consume();
                         ClientPlayNetworking.send(new SetRegionPayload(s.getFirst(), s.getSecond()));
+                        oldPos = null;
                     }else{
-                        client.inGameHud.setOverlayMessage(
-                                Text.literal("[Excavation] preview mode volume " + Integer.toString(volume)).formatted(Formatting.GREEN), false
-                        );
+                        if(!state.isAir()){
+                            if(java.util.Objects.equals(oldPos, b)){
+                                Pair<BlockPos, BlockPos> s = ClientSel.consume();
+                                ClientPlayNetworking.send(new SetRegionPayload(s.getFirst(), s.getSecond()));
+                            }else{
+                                client.inGameHud.setOverlayMessage(
+                                        Text.literal("[Excavation] preview mode volume " + Integer.toString(volume)).formatted(Formatting.GREEN), false
+                                );
+                            }
+                            oldPos = b;
+                        }
                     }
-                    oldPos = b;
+
                 }
             } else {
                 if(ClientSel.pos2 != null) {

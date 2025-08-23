@@ -5,6 +5,7 @@ import com.shinapri.bulkexcavation.config.ExcavationConfigIO;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
+import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
@@ -40,6 +41,20 @@ public final class ExcavationConfigScreen {
         );
 
         cat.addEntry(
+                eb.startBooleanToggle(Text.literal("Prevent tools from breaking"), cfg.preventToolsFromBreaking)
+                        .setDefaultValue(ExcavationConfig.DEFAULT_PREVENT_TOOLS_FROM_BREAKING)
+                        .setSaveConsumer(v -> cfg.preventToolsFromBreaking = v)
+                        .build()
+        );
+
+        cat.addEntry(
+                eb.startIntField(Text.literal("Prevent break threshold"), cfg.preventBreakThreshold)
+                        .setMin(1).setMax(2050).setDefaultValue(ExcavationConfig.DEFAULT_PREVENT_BREAK_THRESHOLD)
+                        .setSaveConsumer(v -> cfg.preventBreakThreshold = v)
+                        .build()
+        );
+
+        cat.addEntry(
                 eb.startBooleanToggle(Text.literal("Drop loot when breaking"), cfg.dropLoot)
                         .setDefaultValue(ExcavationConfig.DEFAULT_DROP_LOOT)
                         .setSaveConsumer(v -> cfg.dropLoot = v)
@@ -64,6 +79,13 @@ public final class ExcavationConfigScreen {
                 eb.startBooleanToggle(Text.literal("Display preview box"), cfg.preview)
                         .setDefaultValue(ExcavationConfig.DEFAULT_PREVIEW)
                         .setSaveConsumer(v -> cfg.preview = v)
+                        .build()
+        );
+
+        cat.addEntry(
+                eb.startBooleanToggle(Text.literal("Enable remote excavation"), cfg.remoteExcavation)
+                        .setDefaultValue(ExcavationConfig.DEFAULT_REMOTE_EXCAVATION)
+                        .setSaveConsumer(v -> cfg.remoteExcavation = v)
                         .build()
         );
 
