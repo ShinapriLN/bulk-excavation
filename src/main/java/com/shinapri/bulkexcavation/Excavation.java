@@ -56,10 +56,10 @@ public class Excavation implements ModInitializer {
 
                                 int volume = (maxX-minX+1)*(maxY-minY+1)*(maxZ-minZ+1);
                                 if (volume > limit) {
-                                    player.sendMessage(
+                                    /*player.sendMessage(
                                             net.minecraft.text.Text.literal("§c[Excavation] Volume exceeds limit ("+limit+")."),
                                             false
-                                    );
+                                    );*/
                                     return;
                                 }
 
@@ -105,7 +105,7 @@ public class Excavation implements ModInitializer {
                                 if (broken > 0) {
                                     if(consoleLog){
                                         player.sendMessage(net.minecraft.text.Text.literal(
-                                                "§a[Excavation] Mined " + broken + " blocks; " +
+                                                "§a[Excavation] Break " + broken + " blocks; " +
                                                         (skippedNoTool > 0 ? ("§cskipped " + skippedNoTool + " (no suitable tool)") : "§7no skips")
                                         ), false);
                                     }

@@ -60,6 +60,13 @@ public final class ExcavationConfigScreen {
                         .build()
         );
 
+        cat.addEntry(
+                eb.startBooleanToggle(Text.literal("Display preview box"), cfg.preview)
+                        .setDefaultValue(ExcavationConfig.DEFAULT_PREVIEW)
+                        .setSaveConsumer(v -> cfg.preview = v)
+                        .build()
+        );
+
         return builder.build();
     }
 }
