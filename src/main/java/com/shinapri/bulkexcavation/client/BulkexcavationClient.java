@@ -1,6 +1,5 @@
 package com.shinapri.bulkexcavation.client;
 
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.shinapri.bulkexcavation.network.SetRegionPayload;
 
 import com.mojang.datafixers.util.Pair;
@@ -10,8 +9,11 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
+//? if <=1.21.8 {
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+//?}
+
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
@@ -37,6 +39,11 @@ import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.util.ActionResult;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 
+//? if <=1.21.1
+/*import net.minecraft.util.TypedActionResult;*/
+
+
+
 public class BulkexcavationClient implements ClientModInitializer {
     private static KeyBinding KEY_ACTIVE;
     private boolean complete = false;
@@ -49,16 +56,28 @@ public class BulkexcavationClient implements ClientModInitializer {
 
     private boolean selectionMode = false;
 
+    //? if >=1.21.9 {
+    /*private static final KeyBinding.Category KEY_CATEGORY =
+            KeyBinding.Category.create(Identifier.of("bulk-excavation", "excavation"));
+    *///?}
+
     @Override public void onInitializeClient() {
 
-
-
+        //? if >=1.21.9 {
+        /*KEY_ACTIVE = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.excavation.pos",
+                GLFW.GLFW_KEY_LEFT_ALT,
+                KEY_CATEGORY
+        ));
+        *///?} else {
         KEY_ACTIVE = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.excavation.pos",
                 GLFW.GLFW_KEY_LEFT_ALT,
                 "key.categories.excavation"
         ));
+        //?}
 
+        //? if <=1.21.8
         WorldRenderEvents.AFTER_TRANSLUCENT.register(this::renderSelectionOutline);
 
         // 2) Cancel right-click on blocks (placement, block use)
@@ -68,7 +87,13 @@ public class BulkexcavationClient implements ClientModInitializer {
 
         // 3) Cancel right-click in air / item use (bucket, ender pearl, etc.)
         UseItemCallback.EVENT.register((player, world, hand) -> {
+            //? if <=1.21.1 {
+            /*return selectionMode
+            ? TypedActionResult.fail(player.getStackInHand(hand))
+            : TypedActionResult.pass(player.getStackInHand(hand));
+            *///?} else {
             return selectionMode ? ActionResult.FAIL : ActionResult.PASS;
+            //?}
         });
 
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) ->
@@ -85,7 +110,13 @@ public class BulkexcavationClient implements ClientModInitializer {
 
             long window = client.getWindow().getHandle();
 
-            boolean altHeld = KEY_ACTIVE.isPressed() || InputUtil.isKeyPressed(window, GLFW.GLFW_KEY_LEFT_ALT);
+            //? if >=1.21.9 {
+            /*boolean altHeld = KEY_ACTIVE.isPressed() ||
+                    InputUtil.isKeyPressed(client.getWindow(), GLFW.GLFW_KEY_LEFT_ALT);
+            *///?} else {
+            boolean altHeld = KEY_ACTIVE.isPressed() ||
+                    InputUtil.isKeyPressed(window, GLFW.GLFW_KEY_LEFT_ALT);
+            //?}
             selectionMode = altHeld;
 
             boolean lmb = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
@@ -201,6 +232,7 @@ public class BulkexcavationClient implements ClientModInitializer {
         return bhr.getBlockPos();
     }
 
+    //? if <=1.21.8 {
     private void renderSelectionOutline(WorldRenderContext ctx) {
         if (ctx.world() == null || ctx.camera() == null || ctx.consumers() == null) return;
 
@@ -233,6 +265,7 @@ public class BulkexcavationClient implements ClientModInitializer {
 
         ms.pop();
     }
+    //?}
 
     private static void fillFaces(MatrixStack ms, VertexConsumer vc,
                                   double x1,double y1,double z1, double x2,double y2,double z2,

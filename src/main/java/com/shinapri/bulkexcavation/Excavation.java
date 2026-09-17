@@ -34,7 +34,13 @@ public class Excavation implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(SetRegionPayload.ID, (payload, context) -> {
                     context.server().execute(() -> {
                         var player = context.player();
+                        //? if <=1.21.5 {
+                        /*ServerWorld world = player.getServerWorld();
+                        *///?} elif <=1.21.8 {
                         ServerWorld world = player.getWorld();
+                        //?} else {
+                        /*ServerWorld world = player.getEntityWorld();
+                        *///?}
 
                         var cfg = com.shinapri.bulkexcavation.config.ExcavationConfigIO.get();
                         int limit = cfg.maxVolume;
@@ -118,7 +124,7 @@ public class Excavation implements ModInitializer {
     }
 
     public static boolean breakWithToolVanilla(ServerPlayerEntity player, BlockPos pos, ItemStack tool) {
-        if (player == null || player.getWorld() == null) return false;
+        if (player == null) return false;
 
         // If tool is already in main hand, skip the swap.
         ItemStack prev = player.getMainHandStack();
