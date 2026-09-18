@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "com.shinapri.bulkexcavation.mixin.client",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "DebugRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -94,3 +94,11 @@ publishing {
 		// retrieving dependencies.
 	}
 }
+
+loom {
+    runConfigs.configureEach {
+        generateRunConfig = stonecutter.current.active
+        preferGradleTask = true
+        runDirectory = rootProject.file("run")
+    }
+}

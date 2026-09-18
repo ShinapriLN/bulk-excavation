@@ -40,9 +40,13 @@ import net.minecraft.util.ActionResult;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 
 //? if <=1.21.1
-/*import net.minecraft.util.TypedActionResult;*/
+//import net.minecraft.util.TypedActionResult;
 
-
+//? if >=1.21.11 {
+/*import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.minecraft.client.render.RenderLayers;
+*///?}
 
 public class BulkexcavationClient implements ClientModInitializer {
     private static KeyBinding KEY_ACTIVE;
@@ -62,6 +66,9 @@ public class BulkexcavationClient implements ClientModInitializer {
     *///?}
 
     @Override public void onInitializeClient() {
+
+        //? if >=1.21.11
+        /*WorldRenderEvents.BEFORE_DEBUG_RENDER.register(this::renderSelectionOutline12111);*/
 
         //? if >=1.21.9 {
         /*KEY_ACTIVE = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -226,6 +233,65 @@ public class BulkexcavationClient implements ClientModInitializer {
 
     }
 
+    //? if >=1.21.11 {
+    /*private void renderSelectionOutline12111(WorldRenderContext ctx) {
+        BlockPos p1 = ClientSel.pos1;
+        BlockPos p2 = ClientSel.pos2;
+
+        if (p1 == null || p2 == null) return;
+
+        int minX = Math.min(p1.getX(), p2.getX());
+        int minY = Math.min(p1.getY(), p2.getY());
+        int minZ = Math.min(p1.getZ(), p2.getZ());
+
+        int maxX = Math.max(p1.getX(), p2.getX()) + 1;
+        int maxY = Math.max(p1.getY(), p2.getY()) + 1;
+        int maxZ = Math.max(p1.getZ(), p2.getZ()) + 1;
+
+        final double eps = 1e-3;
+
+        double x1 = minX - eps;
+        double y1 = minY - eps;
+        double z1 = minZ - eps;
+
+        double x2 = maxX + eps;
+        double y2 = maxY + eps;
+        double z2 = maxZ + eps;
+
+        MatrixStack ms = ctx.matrices();
+
+        Vec3d cam = MinecraftClient.getInstance()
+            .gameRenderer
+            .getCamera()
+            .getCameraPos();
+
+        ms.push();
+        ms.translate(-cam.x, -cam.y, -cam.z);
+
+        VertexConsumer lineVC =
+                ctx.consumers().getBuffer(RenderLayers.lines());
+
+        drawEdgesBox(
+                ms, lineVC,
+                x1, y1, z1,
+                x2, y2, z2,
+                0.2f, 0.8f, 1.0f, 1.0f
+        );
+
+        VertexConsumer faceVC =
+                ctx.consumers().getBuffer(RenderLayers.debugQuads());
+
+        fillFaces(
+                ms, faceVC,
+                x1, y1, z1,
+                x2, y2, z2,
+                0.2f, 0.8f, 1.0f, 0.25f
+        );
+
+        ms.pop();
+    }
+    *///?}
+
     private static BlockPos getLookedBlock(MinecraftClient client) {
         HitResult target = client.crosshairTarget;
         if (!(target instanceof BlockHitResult bhr)) return null;
@@ -325,8 +391,26 @@ public class BulkexcavationClient implements ClientModInitializer {
                              double x2, double y2, double z2,
                              float r, float g, float b, float a) {
         MatrixStack.Entry e = ms.peek();
-        vc.vertex(e, (float)x1, (float)y1, (float)z1).color(r, g, b, a).normal(e, 0, 1, 0);
-        vc.vertex(e, (float)x2, (float)y2, (float)z2).color(r, g, b, a).normal(e, 0, 1, 0);
+
+        //? if >=1.21.11 {
+        /*vc.vertex(e, (float)x1, (float)y1, (float)z1)
+                .color(r, g, b, a)
+                .normal(e, 0, 1, 0)
+                .lineWidth(2.0f);
+
+        vc.vertex(e, (float)x2, (float)y2, (float)z2)
+                .color(r, g, b, a)
+                .normal(e, 0, 1, 0)
+                .lineWidth(2.0f);
+        *///?} else {
+        vc.vertex(e, (float)x1, (float)y1, (float)z1)
+                .color(r, g, b, a)
+                .normal(e, 0, 1, 0);
+
+        vc.vertex(e, (float)x2, (float)y2, (float)z2)
+                .color(r, g, b, a)
+                .normal(e, 0, 1, 0);
+        //?}
     }
 
 
