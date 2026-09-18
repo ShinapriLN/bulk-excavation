@@ -28,28 +28,17 @@ jobs:
       - name: build
         run: ./gradlew chiseledBuild
 
-      - name: prepare release jars
-        run: |
-          mkdir release
-
-          for dir in versions/*; do
-            mc=$(basename "$dir")
-
-            for jar in "$dir"/build/libs/*.jar; do
-              [[ "$jar" == *-sources.jar ]] && continue
-
-              name=$(basename "$jar" .jar)
-              cp "$jar" "release/${name}+mc${mc}.jar"
-            done
-          done
-
       - name: capture build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Artifacts
-          path: release/*.jar
+          path: |
+            versions/*/build/libs/*.jar
+            !versions/*/build/libs/*-sources.jar
 
       - name: upload jars to release
-        run: gh release upload "${{ github.event.release.tag_name }}" release/*.jar
+        run: |
+          find versions -path '*/build/libs/*.jar' ! -name '*-sources.jar' -print0 |
+          xargs -0 gh release upload "${{ github.event.release.tag_name }}"
         env:
           GH_TOKEN: ${{ github.token }}

@@ -102,3 +102,11 @@ loom {
         runDirectory = rootProject.file("run")
     }
 }
+
+tasks.named('remapJar') {
+    archiveFileName = "${project.archives_base_name}-${project.mod_version}+mc${project.minecraft_version}.jar"
+}
+
+tasks.named('remapSourcesJar') {
+    archiveFileName = "${project.archives_base_name}-${project.mod_version}+mc${project.minecraft_version}-sources.jar"
+}
