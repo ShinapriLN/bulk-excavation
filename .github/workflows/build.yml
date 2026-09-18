@@ -31,19 +31,15 @@ jobs:
       - name: prepare release jars
         run: |
           mkdir release
-          
+
           for dir in versions/*; do
             mc=$(basename "$dir")
-          
+
             for jar in "$dir"/build/libs/*.jar; do
+              [[ "$jar" == *-sources.jar ]] && continue
+
               name=$(basename "$jar" .jar)
-          
-              if [[ "$name" == *-sources ]]; then
-                base="${name%-sources}"
-                cp "$jar" "release/${base}+mc${mc}-sources.jar"
-              else
-                cp "$jar" "release/${name}+mc${mc}.jar"
-              fi
+              cp "$jar" "release/${name}+mc${mc}.jar"
             done
           done
 
